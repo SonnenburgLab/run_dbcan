@@ -16,7 +16,8 @@ Same line was breaking because of the spaces in the subprocess call but when I s
 **2. Functionality in fraggenescan to choose CPUs and use reads or metagenomic assemblies**
 
 CPU usage: `--frag_cpus` default is 10
-Reads or assemlies: Option to use 1 (for metagenomes) or 0 (for reads)
+
+Reads or assemblies: `--frag_reads_assembly` option to use 1 (for metagenomes) or 0 (for reads)
 
 **3. An identity threshold cutoff for DIAMOND**
 
