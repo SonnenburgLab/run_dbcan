@@ -9,6 +9,9 @@ These include:
 Mis-spelling complete as "comlete"
 https://github.com/linnabrown/run_dbcan/blob/0ee6f21f8b61940743bbcfcc1d3184968b631c7b/run_dbcan.py#L140
 
+I previously opened this as an issue:
+https://github.com/linnabrown/run_dbcan/issues/33
+
 Same line was breaking because of the spaces in the subprocess call but when I switched it to below where there are no spaces after flags and their parameters it worked.
 
 ```call(['FragGeneScan', '-s', input, '-o', '%sfragGeneScan'%outPath,'-w','1','-t','complete','-p','10'])```
