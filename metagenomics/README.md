@@ -30,4 +30,4 @@ DIAMOND only (~1.5 hours), DIAMOND + HotPep (~10 hours), DIAMOND + HotPep + HMME
 
 For more than ~10 million reads, we required an instance 128K memory. An example command is:
 
-`python run_dbcan_meta.py ${sample}.fasta meta --out_dir ${sample} --out_pre ${sample}_ --tools hotpep diamond --dia_eval 1e-5 --hotpep_cpu 8 --dia_cpu 8 --dia_id 97`
+`python run_dbcan_meta.py ${sample}.fasta meta --out_dir ${sample} --out_pre ${sample}_ --tools hotpep diamond --dia_eval 1e-5 --hotpep_cpu 8 --dia_cpu 8 --dia_id 97 --frag_reads_assembly 0`
