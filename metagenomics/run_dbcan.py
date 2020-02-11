@@ -1,4 +1,4 @@
-#!/home/dahan/miniconda3/bin/python
+#!/usr/bin/env python3
 #########################################################
 # dbCAN2 Driver Script (Stand Alone Version)
 #
@@ -40,7 +40,6 @@ parser.add_argument('--cluster', '-c', help='Predict CGCs via CGCFinder. This ar
 parser.add_argument('--dbCANFile',default="dbCAN.txt", help='Indicate the file name of HMM database such as dbCAN.txt, please use the newest one from dbCAN2 website.')
 parser.add_argument('--dia_eval', default=1e-102,type=float, help='DIAMOND E Value')
 parser.add_argument('--dia_cpu', default=2, type=int, help='Number of CPU cores that DIAMOND is allowed to use')
-parser.add_argument('--dia_id', default=50, type=int, help='minimum identity% to report an alignment')
 parser.add_argument('--hmm_eval', default=1e-15, type=float, help='HMMER E Value')
 parser.add_argument('--hmm_cov', default=0.35, type=float, help='HMMER Coverage val')
 parser.add_argument('--hmm_cpu', default=1, type=int, help='Number of CPU cores that HMMER is allowed to use')
@@ -59,8 +58,6 @@ parser.add_argument('--db_dir', default="db/", help='Database directory')
 parser.add_argument('--cgc_dis', default=2, help='CGCFinder Distance value')
 parser.add_argument('--cgc_sig_genes', default='tp', choices=['tp', 'tf','all'], help='CGCFinder Signature Genes value')
 parser.add_argument('--tools', '-t', nargs='+', choices=['hmmer', 'diamond', 'hotpep', 'all'], default='all', help='Choose a combination of tools to run')
-parser.add_argument('--frag_reads_assembly', default=1, type=int, help='tell fragGeneScan whether you are submitting reads {0} or an assembly {1}')
-parser.add_argument('--frag_cpus', default=10, type=int, help='Number of CPU cores that FragGeneScan is allowed to use')
 parser.add_argument('--use_signalP', default=False, type=bool, help='Use signalP or not, remember, you need to setup signalP tool first. Because of signalP license, Docker version does not have signalP.')
 parser.add_argument('--gram', '-g', choices=["p","n","all"], default="all", help="Choose gram+(p) or gram-(n) for proteome/prokaryote nucleotide, which are params of SingalP, only if user use singalP")
 args = parser.parse_args()
@@ -140,7 +137,7 @@ if inputType == 'prok':
     call(['prodigal', '-i', input, '-a', '%suniInput'%outPath, '-o', '%sprodigal.gff'%outPath, '-f', 'gff', '-q'])
 if inputType == 'meta':
     # call(['FragGeneScan1.30/run_FragGeneScan.pl', '-genome='+input, '-out=%sfragGeneScan'%outPath, '-complete=1', '-train=complete', '-thread=10'])
-    call(['FragGeneScan', '-s', input, '-o', '%sfragGeneScan'%outPath,'-w',str(args.frag_reads_assembly),'-t','complete','-p',str(args.frag_cpus)])
+    call(['FragGeneScan', '-s', input, '-o', '%sfragGeneScan'%outPath, '-w 1','-t comlete', '-p 10'])
 
 #Frag Gene Scan
 if inputType == 'meta':
@@ -166,7 +163,7 @@ if args.use_signalP:
 
 if tools[0]:
     print("***************************1. DIAMOND start*************************************************\n\n")
-    diamond = Popen(['diamond', 'blastp', '-d', '%sCAZy.dmnd' % dbDir, '-e', str(args.dia_eval),'--id', str(args.dia_id),'-q', '%suniInput' % outPath, '-k', '1', '-p', str(args.dia_cpu), '-o', '%sdiamond.out'%outPath, '-f', '6'])
+    diamond = Popen(['diamond', 'blastp', '-d', '%sCAZy.dmnd' % dbDir, '-e', str(args.dia_eval), '-q', '%suniInput' % outPath, '-k', '1', '-p', str(args.dia_cpu), '-o', '%sdiamond.out'%outPath, '-f', '6'])
 
 if tools[1]:
     print("***************************2. HMMER start*************************************************\n\n")
@@ -553,30 +550,17 @@ if args.use_signalP and (os.path.exists(workdir + "signalp.out")):
         sigp_genes[row[0]] = row[4] #previous one is row[2], use Y-score instead from suggestion of Dongyao Li
 
 ##Catie Ausland edits BEGIN, Le add variable exists or not, remove duplicates from input lists
-# if len(hotpep_genes) > 0:
-#     if (hotpep_genes[-1] == None):
-#         hotpep_genes.pop()
-#         hotpep_genes = unique(hotpep_genes)
-#         if 'hmmer_genes' in locals():
-#             hmmer_genes.pop()
-#             hmmer_genes = unique(hmmer_genes)
-#         if 'diamond_genes' in locals():
-#             diamond_genes.pop()
-#             diamond_genes = unique(diamond_genes)
+if len(hotpep_genes) > 0:
+    if (hotpep_genes[-1] == None):
+        hotpep_genes.pop()
+        hotpep_genes = unique(hotpep_genes)
+        if 'hmmer_genes' in locals():
+            hmmer_genes.pop()
+            hmmer_genes = unique(hmmer_genes)
+        if 'diamond_genes' in locals():
+            diamond_genes.pop()
+            diamond_genes = unique(diamond_genes)
 ## Catie edits END, Le add variable exists or not, remove duplicates from input lists
-
-if tools[2]:
-    if len(hotpep_genes) > 0:
-        if (hotpep_genes[len(hotpep_genes)-1] == None):
-            hotpep_genes.pop()
-            hotpep_genes = unique(hotpep_genes)
-            if 'hmmer_genes' in locals():
-                hmmer_genes.pop()
-                hmmer_genes = unique(hmmer_genes)
-            if 'diamond_genes' in locals():
-                diamond_genes.pop()
-                diamond_genes = unique(diamond_genes)
-
 
 # parse input, stroe needed variables
 if tools[0] and (len(arr_diamond) > 1):
