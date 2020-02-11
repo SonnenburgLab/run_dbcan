@@ -59,6 +59,8 @@ parser.add_argument('--db_dir', default="db/", help='Database directory')
 parser.add_argument('--cgc_dis', default=2, help='CGCFinder Distance value')
 parser.add_argument('--cgc_sig_genes', default='tp', choices=['tp', 'tf','all'], help='CGCFinder Signature Genes value')
 parser.add_argument('--tools', '-t', nargs='+', choices=['hmmer', 'diamond', 'hotpep', 'all'], default='all', help='Choose a combination of tools to run')
+parser.add_argument('--fraggenescan_reads_assembly', default=1, type=int, help='tell fragGeneScan whether you are submitting reads {0} or an assembly {1}')
+parser.add_argument('--frag_threads', default=10, type=int, help='Number of CPU cores that FragGeneScan is allowed to use')
 parser.add_argument('--use_signalP', default=False, type=bool, help='Use signalP or not, remember, you need to setup signalP tool first. Because of signalP license, Docker version does not have signalP.')
 parser.add_argument('--gram', '-g', choices=["p","n","all"], default="all", help="Choose gram+(p) or gram-(n) for proteome/prokaryote nucleotide, which are params of SingalP, only if user use singalP")
 args = parser.parse_args()
@@ -138,7 +140,7 @@ if inputType == 'prok':
     call(['prodigal', '-i', input, '-a', '%suniInput'%outPath, '-o', '%sprodigal.gff'%outPath, '-f', 'gff', '-q'])
 if inputType == 'meta':
     # call(['FragGeneScan1.30/run_FragGeneScan.pl', '-genome='+input, '-out=%sfragGeneScan'%outPath, '-complete=1', '-train=complete', '-thread=10'])
-    call(['FragGeneScan', '-s', input, '-o', '%sfragGeneScan'%outPath,'-w','0','-t','complete','-p','10'])
+    call(['FragGeneScan', '-s', input, '-o', '%sfragGeneScan'%outPath,'-w',str(args.fraggenescan_reads_assembly),'-t','complete','-p',str(args.frag_threads)])
 
 #Frag Gene Scan
 if inputType == 'meta':
